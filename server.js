@@ -34,7 +34,7 @@ app.put('/update', (req, res) => {
 			name: req.body.name,
 			parent: req.body.parent,
 			total: req.body.total
-		} 
+		}
 	}, (err, result) => {
 		if(err) console.log(err);
 		res.send(result);
@@ -57,9 +57,9 @@ app.delete('/delete', (req,res) => {
 
 MongoClient.connect('mongodb://hayden321:46869269a@ds127878.mlab.com:27878/pomtimer', (err, database) => {
 	if (err) return console.log(err);
-	db = database; 
+	db = database;
 	server = app.listen(process.env.PORT || 3000, () => {
-		console.log("Listening");
+		console.log("Listening on port 3000");
 	});
-	
+
 });

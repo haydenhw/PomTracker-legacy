@@ -1,7 +1,4 @@
 
-
-
-
 const state = {
 	projects: []
 }
@@ -10,7 +7,6 @@ const toHours = (min) => {
 	return Number((Number(min)/60).toFixed(2));
 }
 
-console.log(typeof toHours(90));
 
 const deleteProj = (state, idx) => {
 	$.ajax({
@@ -21,9 +17,9 @@ const deleteProj = (state, idx) => {
 	state.projects.splice(idx, 1);
 }
 
-const renderProject = (state, elems, name, total, parent, idx) => { 
+const renderProject = (state, elems, name, total, parent, idx) => {
  let project = state.projects[idx];
- let template = $( 
+ let template = $(
 	`<div id="wrapper">
 		<div class="timeMod well">
 				<div class="topRow">
@@ -53,19 +49,19 @@ const renderProject = (state, elems, name, total, parent, idx) => {
 	</div>`)
 
 
- 	template.find(".js-btn5").click( () => { 
+ 	template.find(".js-btn5").click( () => {
  		project.addTime(5);
  		console.log("add time 5" , moment().format("h:mm:ss"));
  	});
 
- 	template.find(".js-btn15").click( () => { 
+ 	template.find(".js-btn15").click( () => {
 		project.addTime(15);
  		console.log("add time 15" , moment().format("h:mm:ss"));
 
 
  	});
 
- 	template.find(".js-btn25").click( () => { 
+ 	template.find(".js-btn25").click( () => {
  		project.addTime(25);
  		console.log("add time 25" , moment().format("h:mm:ss"));
 
@@ -86,12 +82,12 @@ const renderProject = (state, elems, name, total, parent, idx) => {
  			updateAll(state);
  			//this.reset;
  		}
- 	})
+ 	});
 
  	template.find("#js-undo").click( () => {
  		project.undo();
  		renderList(state, elems);
- 	})
+ 	});
 
  	template.find("#js-delete").click( () => {
  		deleteProj(state, idx);
@@ -105,17 +101,27 @@ const renderProject = (state, elems, name, total, parent, idx) => {
  	return template;
 }
 
+const startTimer = (t) => {
+ const intervalSound = new Audio("http://cd.textfiles.com/999wavs/WAVS_T/TUERKLIN.WAV");
+ const endSound= new Audio("http://www.deskalarm.com/sounds/clockbell.wav");
+ const alertInterval = () => intervalSound.play();
+ const alertEnd = () => endSound.play();
+
+	intervalTimer(t, 5, alertEnd, alertInterval)
+
+}
+
 const renderList = (state, elems) => {
 	let resHtml = state.projects.map((proj, idx) => {
 
-		return renderProject(state, elems, proj.name, proj.total, proj.parent, idx) 
+		return renderProject(state, elems, proj.name, proj.total, proj.parent, idx)
 	});
 
 	elems.projectList.html(resHtml);
 }
 
 function Parent (name, total) {
- 	this.name = name; 
+ 	this.name = name;
  	this.total = Number(total);
 
 }
@@ -131,7 +137,7 @@ function Proj(name, total, hist, parent) {
 	this.total = Number(total);
 	this.histCount = 0;
 	if (hist) {
-		this.hist = history;		
+		this.hist = history;
 	} else {
 		this.hist = [];
 	}
@@ -149,9 +155,9 @@ Proj.prototype.addTime = function(t) {
 		 this.hist.push(this.total);
 		 this.histCount = 0;
 	}
+	startTimer(t);
 
-
-}	
+}
 
 Proj.prototype.reset = function() {
 	this.total = 0;
@@ -160,7 +166,7 @@ Proj.prototype.reset = function() {
 Proj.prototype.undo = function() {
 		if (this.hist) {
 			if (this.hist.length > 1 && this.hist.length-this.histCount-2 >= 0) {
-				this.total = this.hist[this.hist.length-this.histCount-2]; 
+				this.total = this.hist[this.hist.length-this.histCount-2];
 				this.histCount++;
 			}
 
@@ -170,7 +176,7 @@ Proj.prototype.undo = function() {
 		}
 }
 
-const initSubmitHandler = (state, elems) => {	
+const initSubmitHandler = (state, elems) => {
 	$(elems.newProj).on("submit", (e) => {
 		e.preventDefault();
 		let name;
@@ -179,7 +185,7 @@ const initSubmitHandler = (state, elems) => {
 		console.log();
 		saveProject(state.projects[state.projects.length-1]);
 		renderList(state, elems);
-	}); 
+	});
 }
 const saveProject = (project) => {
 	console.log(project);
@@ -193,7 +199,7 @@ const updateAll = (state) => {
 		$.ajax({
 			url: "/update",
 			type: "PUT",
-			data: proj, 
+			data: proj,
 			success: (data) => {console.log("save successful")}
 		});
 	});
@@ -201,9 +207,9 @@ const updateAll = (state) => {
 
 const setState = (state, elems) => {
 	const callback = (data) => {
-		/*state.projects = data; 
+		/*state.projects = data;
 		console.log(state.projects);*/
-		
+
 		state.projects = data.map( project => {
 		return new Proj(project.name, project.total, project.hist, project.parent)
 		});
@@ -221,7 +227,4 @@ const main = () => {
 
 }
 
-$(main); 
-
-
-
+$(main);
