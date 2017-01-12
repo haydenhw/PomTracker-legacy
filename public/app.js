@@ -141,7 +141,7 @@ const renderProject = (state, elems, name, total, parent, idx) => {
 			const input = Number($(`#customInput${idx}`).val());
 			console.log(input);
  			project.addTime(input);
- 			console.log((new Date()).toDateString());
+ 			console.log(`add time ${input}`, moment().format("h:mm:ss"));
  			renderList(state, elems);
  			updateAll(state);
  			//this.reset;
