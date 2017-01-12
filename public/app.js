@@ -250,7 +250,7 @@ const initTaskSubmitHandler = (state, elems) => {
 		let name, parent;
 		name = $("#projName").val();
 		parent = $("#selectParent :selected").text();
-		state.projects.push(new Proj(name, 0, null, parent));
+		state.projects.unshift(new Proj(name, 0, null, parent));
 		saveProject(state.projects[state.projects.length-1]);
 		renderList(state, elems);
 	});
