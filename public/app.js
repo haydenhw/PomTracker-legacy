@@ -113,19 +113,19 @@ const renderProject = (state, elems, name, total, parent, idx) => {
 
  	template.find(".js-btn5").click( () => {
  		project.addTime(5);
- 		console.log("add time 5" , moment().format("h:mm:ss"));
+ 		console.log(`add time 5 to ${name}` , moment().format("h:mm:ss"));
  	});
 
  	template.find(".js-btn15").click( () => {
 		project.addTime(15);
- 		console.log("add time 15" , moment().format("h:mm:ss"));
+ 		console.log(`add time 15 to ${name}` , moment().format("h:mm:ss"));
 
 
  	});
 
  	template.find(".js-btn25").click( () => {
  		project.addTime(25);
- 		console.log("add time 25" , moment().format("h:mm:ss"));
+ 		console.log(`add time 25 to ${name}` , moment().format("h:mm:ss"));
 
 
  	});
@@ -141,7 +141,7 @@ const renderProject = (state, elems, name, total, parent, idx) => {
 			const input = Number($(`#customInput${idx}`).val());
 			console.log(input);
  			project.addTime(input);
- 			console.log(`add time ${input}`, moment().format("h:mm:ss"));
+ 			console.log(`add time ${input} to ${name}`, moment().format("h:mm:ss"));
  			renderList(state, elems);
  			updateAll(state);
  			//this.reset;
@@ -211,8 +211,9 @@ Proj.prototype.addTime = function(t) {
 
 	if(this.parentAddTime)
   	this.parentAddTime(t);
-		startTimer(t);
-	  renderParents()
+
+	startTimer(t);
+	renderParents()
 }
 
 Proj.prototype.reset = function() {

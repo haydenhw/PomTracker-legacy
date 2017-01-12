@@ -14,10 +14,11 @@ const renderTime = time => {
 const intervalTimer =
 	(minutes, interval, endCallback, intervalCallback, renderCallback) => {
 	let seconds = minutes * 60;
-	console.log("Timer Running...");
+	console.log("Timer Started at", moment().format("h:mm:ss"));
 
 	const countDown = setInterval(() => {
 		if (seconds <= 0) {
+			console.log("Finished at", moment().format("h:mm:ss")
 			clearInterval(countDown);
 			endCallback();
 		}
