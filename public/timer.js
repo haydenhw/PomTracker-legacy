@@ -14,15 +14,16 @@ const renderTime = time => {
 const intervalTimer =
 	(minutes, interval, endCallback, intervalCallback, renderCallback) => {
 	let seconds = minutes * 60;
+	console.log("Timer Running...");
+
 	const countDown = setInterval(() => {
-		console.log(seconds);
 		if (seconds <= 0) {
 			clearInterval(countDown);
 			endCallback();
 		}
 		if (seconds/60 % interval === 0) {
 			if (intervalCallback)
-				intervalCallback();
+				intervalCallback(seconds/60);
 		}
 		seconds--;
 		if (seconds > 0) {

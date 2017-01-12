@@ -8,8 +8,10 @@ const startTimer = (t) => {
 	//droid cascade
  const intervalSound = new Audio("./sounds/intervalSound.mp3");
  const endSound = new Audio("./sounds/endSound.mp3");
- const alertInterval = () => {
-	 for (var i = 0; i < 5; i++) {
+
+ const alertInterval = (interval) => {
+	 console.log(interval);
+	 for (let i = 0; i < 5; i++) {
 		 intervalSound.play();
 	 }
  }
@@ -209,7 +211,6 @@ Proj.prototype.addTime = function(t) {
 
 	if(this.parentAddTime)
   	this.parentAddTime(t);
-		console.log(t);
 		startTimer(t);
 	  renderParents()
 }
