@@ -1,12 +1,26 @@
 
 const state = {
+	parents: ["none"],
 	projects: []
+}
+
+const startTimer = (t) => {
+	//droid cascade
+ const intervalSound = new Audio("./sounds/intervalSound.mp3");
+ const endSound = new Audio("./sounds/endSound.mp3");
+ const alertInterval = () => {
+	 for (var i = 0; i < 5; i++) {
+		 intervalSound.play();
+	 }
+ }
+ const alertEnd = () => endSound.play();
+
+ intervalTimer(t, 5, alertEnd, alertInterval)
 }
 
 const toHours = (min) => {
 	return Number((Number(min)/60).toFixed(2));
 }
-
 
 const deleteProj = (state, idx) => {
 	$.ajax({
@@ -17,6 +31,59 @@ const deleteProj = (state, idx) => {
 	state.projects.splice(idx, 1);
 }
 
+const deleteParent = (parentName) => {
+
+	state.projects.forEach(proj => {
+		if (proj.parent === parentName) {
+			proj.parent = "";
+			console.log(proj);
+		}
+	});
+	state.parents = state.parents.filter(parent => {
+		return parent !== parentName;
+	});
+	console.log(state.parents);
+	renderParents();
+	renderParentOptions();
+	updateAll(state);
+}
+
+const getParentValues = () => {
+	const obj = {};
+		state.projects.forEach((proj) => {
+			obj[proj.parent] ? obj[proj.parent] += proj.total : obj[proj.parent] = proj.total;
+		});
+		return obj;
+}
+
+const renderOneParent = (parentName, value) => {
+	const resHtml = $(
+		`<div>
+			<div id="parentWrapper">
+				<span class="parent">${parentName}</span>
+				<span class="parentValue">${value}</span>
+				<button id="deleteParent" class="btn btn-outline-secondary">X</button>
+			</div>
+		</div>`
+	);
+
+	resHtml.find("#deleteParent").click(() => {
+		deleteParent(parentName);
+	});
+	return resHtml;
+}
+
+const renderParents = () => {
+	const parents = getParentValues();
+	const resHtml = Object
+		.keys(parents)
+		.filter(key => key !== "none" && key !== "")
+		.map(key => {
+		return renderOneParent(key, parents[key]);
+	});
+	$("#parents").html(resHtml);
+}
+
 const renderProject = (state, elems, name, total, parent, idx) => {
  let project = state.projects[idx];
  let template = $(
@@ -25,20 +92,13 @@ const renderProject = (state, elems, name, total, parent, idx) => {
 				<div class="topRow">
 					<span class="title">${name}</span>
 					<span class="acctotal">${total.toFixed(2)}</span>
-					<div class="form-group sell">
-						<label for="sell"></label>
-						<select name="" id="sell" class="form-control">
-							<option value="1">1</option>
-							<option value="2">2</option>
-							<option value="3">3</option>
-						</select>
-					</div>
+					<span class="parent">${parent}<span>
 				</div>
 			<div class="btn-group timeButtons">
 				<button type="button" class="js-btn5 btn btn-primary">5</button>
 				<button type="button" class="js-btn15 btn btn-primary">15</button>
 				<button type="button" class="js-btn25 btn btn-primary" value="25">25</button>
-				<input type="text" name="" id="customInput" class="customInput form-control">
+				<input type="text" name="" id="customInput${idx}" class="customInput form-control">
 			</div>
 			<div class="controlButtons">
 				<button type="button" id="js-reset" class="btn btn-primary" >Reset</button>
@@ -72,22 +132,24 @@ const renderProject = (state, elems, name, total, parent, idx) => {
  		project.reset();
  	});
 
- 	template.find("#customInput").on("keyup", (e) => {
+ 	template.find(`#customInput${idx}`).on("keyup", (e) => {
  		const code = e.which;
  		if (code == 13) {
  			e.preventDefault();
- 			project.addTime(Number($("#customInput").val()));
+			const input = Number($(`#customInput${idx}`).val());
+			console.log(input);
+ 			project.addTime(input);
  			console.log((new Date()).toDateString());
  			renderList(state, elems);
  			updateAll(state);
  			//this.reset;
  		}
- 	});
+ 	})
 
  	template.find("#js-undo").click( () => {
  		project.undo();
  		renderList(state, elems);
- 	});
+ 	})
 
  	template.find("#js-delete").click( () => {
  		deleteProj(state, idx);
@@ -101,35 +163,25 @@ const renderProject = (state, elems, name, total, parent, idx) => {
  	return template;
 }
 
-const startTimer = (t) => {
- const intervalSound = new Audio("http://cd.textfiles.com/999wavs/WAVS_T/TUERKLIN.WAV");
- const endSound= new Audio("http://www.deskalarm.com/sounds/clockbell.wav");
- const alertInterval = () => intervalSound.play();
- const alertEnd = () => endSound.play();
-
-	intervalTimer(t, 5, alertEnd, alertInterval)
-
-}
-
 const renderList = (state, elems) => {
 	let resHtml = state.projects.map((proj, idx) => {
-
 		return renderProject(state, elems, proj.name, proj.total, proj.parent, idx)
 	});
 
 	elems.projectList.html(resHtml);
 }
 
-function Parent (name, total) {
- 	this.name = name;
- 	this.total = Number(total);
+renderParentOptions = () => {
+	resHtml = state.parents
+	.filter(parent => parent !== "")
+	.map((parent) => {
+		return `<option value="${parent}">${parent}</option>`;
+	});
 
+	$("#selectParent").html(resHtml);
 }
 
-Parent.prototype.addTime = function(t) {
 
-	this.total += toHours(t);
-}
 
 function Proj(name, total, hist, parent) {
 	this.name = name;
@@ -144,19 +196,22 @@ function Proj(name, total, hist, parent) {
 
 }
 
-Proj.prototype.parentAddTime = function() {
-
+Proj.prototype.parentAddTime = function(t) {
+	this.parent.time += t;
 }
 
 Proj.prototype.addTime = function(t) {
-	console.log(toHours(t));
 	this.total += toHours(t);
 	if (this.hist) {
 		 this.hist.push(this.total);
 		 this.histCount = 0;
 	}
-	startTimer(t);
 
+	if(this.parentAddTime)
+  	this.parentAddTime(t);
+		console.log(t);
+		startTimer(t);
+	  renderParents()
 }
 
 Proj.prototype.reset = function() {
@@ -176,19 +231,30 @@ Proj.prototype.undo = function() {
 		}
 }
 
-const initSubmitHandler = (state, elems) => {
-	$(elems.newProj).on("submit", (e) => {
+const initParentSubmitHandler = (state,elems) => {
+	$(elems.newParent).on("submit", (e) => {
 		e.preventDefault();
 		let name;
+		name = $("#parentName").val();
+		state.parents.push(name);
+		renderParentOptions(state, elems);
+		//saveProject(state.projects[state.projects.length-1]);
+		//renderList(state, elems);
+	});
+}
+
+const initTaskSubmitHandler = (state, elems) => {
+	$(elems.newProj).on("submit", (e) => {
+		e.preventDefault();
+		let name, parent;
 		name = $("#projName").val();
-		state.projects.push(new Proj(name, 0));
-		console.log();
+		parent = $("#selectParent :selected").text();
+		state.projects.push(new Proj(name, 0, null, parent));
 		saveProject(state.projects[state.projects.length-1]);
 		renderList(state, elems);
 	});
 }
 const saveProject = (project) => {
-	console.log(project);
 	const callback = () => console.log("Project Saved");
 
 	$.post("/save", project, callback, "json");
@@ -207,23 +273,31 @@ const updateAll = (state) => {
 
 const setState = (state, elems) => {
 	const callback = (data) => {
-		/*state.projects = data;
-		console.log(state.projects);*/
-
 		state.projects = data.map( project => {
-		return new Proj(project.name, project.total, project.hist, project.parent)
+
+			if(state.parents.indexOf(project.parent) === -1)
+				state.parents.push(project.parent);
+
+			return new Proj(project.name, project.total, project.hist, project.parent)
 		});
+
 		renderList(state, elems);
+		renderParentOptions(state, elems);
+		renderParents();
 	}
 	$.get("/getData", undefined, callback);
 }
 const main = () => {
 	const elems = {
+		newParent: $("#newParent"),
+		parentSelect: $("#selectParent"),
 		newProj : $("#newProj"),
 		projectList: $("#projectList")
-	}
+	};
+
 	setState(state, elems);
-	initSubmitHandler(state, elems)
+	initParentSubmitHandler(state, elems);
+	initTaskSubmitHandler(state, elems);
 
 }
 

@@ -1,6 +1,11 @@
 body {
  	padding: 10px;
- 	
+
+}
+
+.wrapper {
+  display: block;
+  margin-top: 10px;
 }
 
 .timeMod {
@@ -48,4 +53,3 @@ body {
 .controlButtons {
 	margin-top: 10px;
 }
-

@@ -32,9 +32,6 @@ const intervalTimer =
 	}, 1000);
 }
 
-
-
-
 /*
 var action = prompt("Type 's' to log another pomodoro");
 if (action === "s") {
@@ -42,8 +39,6 @@ if (action === "s") {
 	reduceTime (24.5);
 }
 console.log(action);*/
-
-
 
 const initHandleBtn25 = el => {
 	el.btn25.on("click", e => {
@@ -53,7 +48,7 @@ const initHandleBtn25 = el => {
 		reduceTime(time);
 		upTime("coding",25)
 		this.reset;
-	})
+	});
 }
 
 const initTimer = () => {

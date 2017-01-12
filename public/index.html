@@ -8,51 +8,35 @@
 	<link rel="stylesheet" href="main.css">
 </head>
 <body>
-	<!-- <div class="timeMod well">
-			<div class="topRow">
-				<span class="title">Proj 1</span>
-				<span class="accTime">1.7</span>
-				<div class="form-group sell">
-					<label for="sell"></label>
-					<select name="" id="sell" class="form-control">
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3">3</option>
-					</select>
-				</div>
+
+	<div id="parents"></div>
+
+	<form class="form-inline " id="newParent">
+		<div class="wrapper">
+			<div class="form-group">
+				<label for="Parent">Parent:</label>
+				<input type="text" class="form-control" id="parentName" placeholder="Enter Parent">
 			</div>
-		<div class="btn-group timeButtons">
-			<button type="button" class="btn btn-primary btn5">5</button>
-			<button type="button" class="btn15 btn btn-primary">15</button>
-			<button type="button" class="btn25 btn btn-primary">25</button>
-			<input type="text" name="" id="" class="customInput form-control">
+			<button type="submit" class="btn btn-default">Submit</button>
 		</div>
-		<div class="controlButtons">
-			<button type="button" class="btn btn-primary" >Reset</button>
-			<button type="button" class="btn btn-primary" >Undo</button>
-			<button type="button" class="btn btn-primary" >Add Totals</button>
-		</div>
-	</div> -->
-	<div class="js-clock">
-		<span class="js-min">0</span>
-		<span class="js-semi">:</span>
-		<span class="js-sec">0</span>
-	</div>
+	</form>
 
 	<form class="form-inline " id="newProj">
-	    <div class="form-group">
-	      <label for="email">Name:</label>
-	      <input type="text" class="form-control" id="projName" placeholder="Enter Name">
-	    </div>
+	  <div class="wrapper">
+			<div class="form-group">
+				<label for="Task">Task:</label>
+				<input type="text" class="form-control" id="projName" placeholder="Enter Task">
+			</div>
 
+			<div class="form-group">
+			  <label for="Parent">Parent:</label>
+			  <select class="form-control" id="selectParent">
+			  </select>
+			</div>
 
- <!--   <div class="form-group">
-   <label for="pwd">Parent:</label>
-   <input type="password" class="form-control" id="pwd" placeholder="Enter password">
- </div> -->
-
-    <button type="submit" class="btn btn-default">Submit</button>
-  </form>
+		<button type="submit" class="btn btn-default">Submit</button>
+	</form>
+	  </div>
 
     <div id="projectList"></div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
