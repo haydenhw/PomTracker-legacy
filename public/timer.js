@@ -14,18 +14,22 @@ const renderTime = time => {
 const intervalTimer =
 	(minutes, interval, endCallback, intervalCallback, renderCallback) => {
 	let seconds = minutes * 60;
-	console.log("Timer Started at", moment().format("h:mm:ss"));
+
+	if (minutes)
+		console.log("Timer Started at", moment().format("h:mm:ss"));
 
 	const countDown = setInterval(() => {
 		if (seconds <= 0) {
-			console.log("Finished at", moment().format("h:mm:ss")
+			console.log("Finished at", moment().format("h:mm:ss"));
 			clearInterval(countDown);
 			endCallback();
 		}
+
 		if (seconds/60 % interval === 0) {
 			if (intervalCallback)
 				intervalCallback(seconds/60);
 		}
+
 		seconds--;
 		if (seconds > 0) {
 			if(renderCallback)

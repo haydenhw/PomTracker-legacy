@@ -170,7 +170,7 @@ const renderList = (state, elems) => {
 		return renderProject(state, elems, proj.name, proj.total, proj.parent, idx)
 	});
 
-	elems.projectList.html(resHtml);
+	elems.projectList.html(resHtml.reverse());
 }
 
 renderParentOptions = () => {
@@ -204,6 +204,7 @@ Proj.prototype.parentAddTime = function(t) {
 
 Proj.prototype.addTime = function(t) {
 	this.total += toHours(t);
+
 	if (this.hist) {
 		 this.hist.push(this.total);
 		 this.histCount = 0;
@@ -251,7 +252,8 @@ const initTaskSubmitHandler = (state, elems) => {
 		let name, parent;
 		name = $("#projName").val();
 		parent = $("#selectParent :selected").text();
-		state.projects.unshift(new Proj(name, 0, null, parent));
+		state.projects.push(new Proj(name, 0, null, parent));
+		console.log(state.projects);
 		saveProject(state.projects[state.projects.length-1]);
 		renderList(state, elems);
 	});
