@@ -1,3 +1,6 @@
+/*const callback = (data) => console.log(data);
+
+$.get("/tasks", callback);*/
 
 const state = {
 	parents: ["none"],
@@ -26,7 +29,7 @@ const toHours = (min) => {
 
 const deleteProj = (state, idx) => {
 	$.ajax({
-			url: "/delete",
+			url: "/tasks",
 			type: "DELETE",
 			data: state.projects[idx]
 		});
@@ -253,21 +256,26 @@ const initTaskSubmitHandler = (state, elems) => {
 		name = $("#projName").val();
 		parent = $("#selectParent :selected").text();
 		state.projects.push(new Proj(name, 0, null, parent));
-		console.log(state.projects);
 		saveProject(state.projects[state.projects.length-1]);
 		renderList(state, elems);
 	});
 }
+
 const saveProject = (project) => {
 	const callback = () => console.log("Project Saved");
-
-	$.post("/save", project, callback, "json");
+	const postObj = {
+		"name": project.name,
+		"parent": project.parent,
+		"total": project.total
+	}
+	console.log(postObj);
+	$.post("/tasks", postObj, callback, "json");
 }
 
 const updateAll = (state) => {
 	state.projects.forEach((proj) => {
 		$.ajax({
-			url: "/update",
+			url: "/tasks",
 			type: "PUT",
 			data: proj,
 			success: (data) => {console.log("save successful")}
@@ -277,7 +285,8 @@ const updateAll = (state) => {
 
 const setState = (state, elems) => {
 	const callback = (data) => {
-		state.projects = data.map( project => {
+
+		state.projects = data.tasks.map( project => {
 
 			if(state.parents.indexOf(project.parent) === -1)
 				state.parents.push(project.parent);
@@ -289,7 +298,7 @@ const setState = (state, elems) => {
 		renderParentOptions(state, elems);
 		renderParents();
 	}
-	$.get("/getData", undefined, callback);
+	$.get("/tasks", undefined, callback);
 }
 const main = () => {
 	const elems = {
