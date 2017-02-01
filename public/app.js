@@ -1,10 +1,8 @@
-/*const callback = (data) => console.log(data);
 
-$.get("/tasks", callback);*/
 
 const state = {
-	parents: ["none"],
-	projects: []
+	projects: ["none"],
+	tasks: []
 }
 
 const startTimer = (t) => {
@@ -27,77 +25,77 @@ const toHours = (min) => {
 	return Number((Number(min)/60).toFixed(2));
 }
 
-const deleteProj = (state, idx) => {
+const deleteTask = (state, idx) => {
 	$.ajax({
 			url: "/tasks",
 			type: "DELETE",
-			data: state.projects[idx]
+			data: state.tasks[idx]
 		});
-	state.projects.splice(idx, 1);
+	state.tasks.splice(idx, 1);
 }
 
-const deleteParent = (parentName) => {
+const deleteProject = (projectName) => {
 
-	state.projects.forEach(proj => {
-		if (proj.parent === parentName) {
-			proj.parent = "";
-			console.log(proj);
+	state.tasks.forEach(task => {
+		if (task.project === projectName) {
+			task.project = "";
+			console.log(task);
 		}
 	});
-	state.parents = state.parents.filter(parent => {
-		return parent !== parentName;
+	state.projects = state.projects.filter(project => {
+		return project !== projectName;
 	});
-	console.log(state.parents);
-	renderParents();
-	renderParentOptions();
+	console.log(state.projects);
+	renderProjects();
+	renderProjectOptions();
 	updateAll(state);
 }
 
-const getParentValues = () => {
+const getProjectValues = () => {
 	const obj = {};
-		state.projects.forEach((proj) => {
-			obj[proj.parent] ? obj[proj.parent] += proj.total : obj[proj.parent] = proj.total;
+		state.tasks.forEach((task) => {
+			obj[task.project] ? obj[task.project] += task.totalTime : obj[task.project] = task.totalTime;
 		});
 		return obj;
 }
 
-const renderOneParent = (parentName, value) => {
+const renderOneProject = (projectName, value) => {
 	const resHtml = $(
 		`<div>
-			<div id="parentWrapper">
-				<span class="parent">${parentName}</span>
-				<span class="parentValue">${value}</span>
-				<button id="deleteParent" class="btn btn-outline-secondary">X</button>
+			<div id="projectWrapper">
+				<span class="project">${projectName}</span>
+				<span class="projectValue">${value}</span>
+				<button id="deleteProject" class="btn btn-outline-secondary">X</button>
 			</div>
 		</div>`
 	);
 
-	resHtml.find("#deleteParent").click(() => {
-		deleteParent(parentName);
+	resHtml.find("#deleteProject").click(() => {
+		deleteProject(projectName);
 	});
 	return resHtml;
 }
 
-const renderParents = () => {
-	const parents = getParentValues();
+const renderProjects = () => {
+	const projects = getProjectValues();
 	const resHtml = Object
-		.keys(parents)
+		.keys(projects)
 		.filter(key => key !== "none" && key !== "")
 		.map(key => {
-		return renderOneParent(key, parents[key]);
+		return renderOneProject(key, projects[key]);
 	});
-	$("#parents").html(resHtml);
+	$("#projects").html(resHtml);
 }
 
-const renderProject = (state, elems, name, total, parent, idx) => {
- let project = state.projects[idx];
+const renderTask = (state, elems, name, totalTime, project, idx) => {
+ let task = state.tasks[idx];
  let template = $(
 	`<div id="wrapper">
 		<div class="timeMod well">
 				<div class="topRow">
 					<span class="title">${name}</span>
-					<span class="acctotal">${total.toFixed(2)}</span>
-					<span class="parent">${parent}<span>
+					<span class="acctotal">${totalTime.toFixed(2)}</span>
+					<span class="project">${project}<span>
 				</div>
 			<div class="btn-group timeButtons">
 				<button type="button" class="js-btn5 btn btn-primary">5</button>
@@ -115,26 +113,26 @@ const renderProject = (state, elems, name, total, parent, idx) => {
 
 
  	template.find(".js-btn5").click( () => {
- 		project.addTime(5);
+ 		task.addTime(5);
  		console.log(`add time 5 to ${name}` , moment().format("h:mm:ss"));
  	});
 
  	template.find(".js-btn15").click( () => {
-		project.addTime(15);
+		task.addTime(15);
  		console.log(`add time 15 to ${name}` , moment().format("h:mm:ss"));
 
 
  	});
 
  	template.find(".js-btn25").click( () => {
- 		project.addTime(25);
+ 		task.addTime(25);
  		console.log(`add time 25 to ${name}` , moment().format("h:mm:ss"));
 
 
  	});
 
  	template.find("#js-reset").click( () => {
- 		project.reset();
+ 		task.reset();
  	});
 
  	template.find(`#customInput${idx}`).on("keyup", (e) => {
@@ -143,7 +141,7 @@ const renderProject = (state, elems, name, total, parent, idx) => {
  			e.preventDefault();
 			const input = Number($(`#customInput${idx}`).val());
 			console.log(input);
- 			project.addTime(input);
+ 			task.addTime(input);
  			console.log(`add time ${input} to ${name}`, moment().format("h:mm:ss"));
  			renderList(state, elems);
  			updateAll(state);
@@ -152,12 +150,12 @@ const renderProject = (state, elems, name, total, parent, idx) => {
  	})
 
  	template.find("#js-undo").click( () => {
- 		project.undo();
+ 		task.undo();
  		renderList(state, elems);
  	})
 
  	template.find("#js-delete").click( () => {
- 		deleteProj(state, idx);
+ 		deleteTask(state, idx);
  	});
 
  	template.find(".btn").click(() => {
@@ -169,65 +167,61 @@ const renderProject = (state, elems, name, total, parent, idx) => {
 }
 
 const renderList = (state, elems) => {
-	let resHtml = state.projects.map((proj, idx) => {
-		return renderProject(state, elems, proj.name, proj.total, proj.parent, idx)
+	let resHtml = state.tasks.map((task, idx) => {
+		return renderTask(state, elems, task.name, task.totalTime, task.project, idx)
 	});
 
-	elems.projectList.html(resHtml.reverse());
+	elems.taskList.html(resHtml.reverse());
 }
 
-renderParentOptions = () => {
-	resHtml = state.parents
-	.filter(parent => parent !== "")
-	.map((parent) => {
-		return `<option value="${parent}">${parent}</option>`;
+renderProjectOptions = () => {
+	resHtml = state.projects
+	.filter(project => project !== "")
+	.map((project) => {
+		return `<option value="${project}">${project}</option>`;
 	});
 
-	$("#selectParent").html(resHtml);
+	$("#selectProject").html(resHtml);
 }
 
 
 
-function Proj(name, total, hist, parent) {
+function Task(name, totalTime, hist, project) {
 	this.name = name;
-	this.parent = parent;
-	this.total = Number(total);
+	this.project = project;
+	this.totalTime = Number(totalTime);
 	this.histCount = 0;
 	if (hist) {
 		this.hist = history;
 	} else {
 		this.hist = [];
 	}
-
 }
 
-Proj.prototype.parentAddTime = function(t) {
-	this.parent.time += t;
-}
 
-Proj.prototype.addTime = function(t) {
-	this.total += toHours(t);
+Task.prototype.addTime = function(t) {
+	this.totalTime += toHours(t);
 
 	if (this.hist) {
-		 this.hist.push(this.total);
+		 this.hist.push(this.totalTime);
 		 this.histCount = 0;
 	}
 
-	if(this.parentAddTime)
-  	this.parentAddTime(t);
+	if(this.projectAddTime)
+  	this.projectAddTime(t);
 
 	startTimer(t);
-	renderParents()
+	renderProjects()
 }
 
-Proj.prototype.reset = function() {
-	this.total = 0;
+Task.prototype.reset = function() {
+	this.totalTime = 0;
 }
 
-Proj.prototype.undo = function() {
+Task.prototype.undo = function() {
 		if (this.hist) {
 			if (this.hist.length > 1 && this.hist.length-this.histCount-2 >= 0) {
-				this.total = this.hist[this.hist.length-this.histCount-2];
+				this.totalTime = this.hist[this.hist.length-this.histCount-2];
 				this.histCount++;
 			}
 
@@ -237,47 +231,47 @@ Proj.prototype.undo = function() {
 		}
 }
 
-const initParentSubmitHandler = (state,elems) => {
-	$(elems.newParent).on("submit", (e) => {
+const initProjectsubmitHandler = (state,elems) => {
+	$(elems.newProject).on("submit", (e) => {
 		e.preventDefault();
 		let name;
-		name = $("#parentName").val();
-		state.parents.push(name);
-		renderParentOptions(state, elems);
-		//saveProject(state.projects[state.projects.length-1]);
+		name = $("#projectName").val();
+		state.projects.push(name);
+		renderProjectOptions(state, elems);
+		//saveTask(state.tasks[state.tasks.length-1]);
 		//renderList(state, elems);
 	});
 }
 
 const initTaskSubmitHandler = (state, elems) => {
-	$(elems.newProj).on("submit", (e) => {
+	$(elems.newTask).on("submit", (e) => {
 		e.preventDefault();
-		let name, parent;
-		name = $("#projName").val();
-		parent = $("#selectParent :selected").text();
-		state.projects.push(new Proj(name, 0, null, parent));
-		saveProject(state.projects[state.projects.length-1]);
+		let name, project;
+		name = $("#taskName").val();
+		project = $("#selectProject :selected").text();
+		state.tasks.push(new Task(name, 0, null, project));
+		saveTask(state.tasks[state.tasks.length-1]);
 		renderList(state, elems);
 	});
 }
 
-const saveProject = (project) => {
-	const callback = () => console.log("Project Saved");
+const saveTask = (task) => {
+	const callback = () => console.log("Task Saved");
 	const postObj = {
-		"name": project.name,
-		"parent": project.parent,
-		"total": project.total
+		"name": task.name,
+		"project": task.project,
+		"totalTime": task.totalTime
 	}
 	console.log(postObj);
 	$.post("/tasks", postObj, callback, "json");
 }
 
 const updateAll = (state) => {
-	state.projects.forEach((proj) => {
+	state.tasks.forEach((task) => {
 		$.ajax({
 			url: "/tasks",
 			type: "PUT",
-			data: proj,
+			data: task,
 			success: (data) => {console.log("save successful")}
 		});
 	});
@@ -286,30 +280,30 @@ const updateAll = (state) => {
 const setState = (state, elems) => {
 	const callback = (data) => {
 
-		state.projects = data.tasks.map( project => {
+		state.tasks = data.tasks.map( task => {
 
-			if(state.parents.indexOf(project.parent) === -1)
-				state.parents.push(project.parent);
+			if(state.projects.indexOf(task.project) === -1)
+				state.projects.push(task.project);
 
-			return new Proj(project.name, project.total, project.hist, project.parent)
+			return new Task(task.name, task.totalTime, task.hist, task.project)
 		});
 
 		renderList(state, elems);
-		renderParentOptions(state, elems);
-		renderParents();
+		renderProjectOptions(state, elems);
+		renderProjects();
 	}
 	$.get("/tasks", undefined, callback);
 }
 const main = () => {
 	const elems = {
-		newParent: $("#newParent"),
-		parentSelect: $("#selectParent"),
-		newProj : $("#newProj"),
-		projectList: $("#projectList")
+		newProject: $("#newProject"),
+		projectselect: $("#selectProject"),
+		newTask : $("#newTask"),
+		taskList: $("#taskList")
 	};
 
 	setState(state, elems);
-	initParentSubmitHandler(state, elems);
+	initProjectsubmitHandler(state, elems);
 	initTaskSubmitHandler(state, elems);
 
 }
