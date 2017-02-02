@@ -100,16 +100,14 @@ function Task(name, totalTime, project) {
 	this.name = name;
 	this.project = project;
 	this.totalTime = Number(totalTime);
-	this.histCount = 0;
-	this.hist = [totalTime];
+	this.history = [totalTime];
 }
 
-Task.prototype.addTime = function(t) {
+Task.prototype.addTime = function(state, elems, t) {
 	this.totalTime += minutesToHours(t);
 
-	if (this.hist) {
-		 this.hist.push(this.totalTime);
-		 this.histCount = 0;
+	if (this.history) {
+		 this.history.push(this.totalTime);
 	}
 
 	if(this.projectAddTime) {
@@ -119,19 +117,23 @@ Task.prototype.addTime = function(t) {
 	renderProjectList(state, elems);
 }
 
-Task.prototype.reset = function() {
+Task.prototype.reset = function(state, elems) {
 	this.totalTime = 0;
 
-	if(this.hist) {
-		this.hist.push(0);
+	if(this.history) {
+		this.history.push(0);
 	}
+
+	renderProjectList(state, elems);
 }
 
-Task.prototype.undo = function() {
-	if (this.hist && this.hist.length > 1) {
-		this.hist.pop();
-		this.totalTime = this.hist[this.hist.length - 1];
+Task.prototype.undo = function(state, elems) {
+	if (this.history && this.history.length > 1) {
+		this.history.pop();
+		this.totalTime = this.history[this.history.length - 1];
 	}
+
+	renderProjectList(state, elems);
 }
 
 function Project(name , tasks) {
@@ -172,8 +174,18 @@ const updateAllTasks = (state) => {
 		});
 	});
 }
+/*
+const setState = (state, elems) => {
 
-const getTasks = (state, elems) => {
+	const callback = data => {
+	  state.projects = data.projects.map(project => {
+	    const tasks = project.tasks.map(task => new Task (task.taskName, task.total, task.log));
+	    return new Project(project.projectName, tasks);
+	  });
+		renderTaskList(state, elems);
+		renderProjectOptions(state, elems);
+		renderProjectList(state, elems);
+	}
 	const callback = (data) => {
 		state.tasks = data.tasks.map( task => {
 
@@ -181,7 +193,7 @@ const getTasks = (state, elems) => {
 				state.projects.push(task.project);
 			}
 
-			return new Task(task.name, task.totalTime, task.hist, task.project)
+			return new Task(task.name, task.totalTime, task.history, task.project)
 		});
 
 		renderTaskList(state, elems);
@@ -189,7 +201,7 @@ const getTasks = (state, elems) => {
 		renderProjectList(state, elems);
 	}
 	$.get("/tasks", undefined, callback);
-}
+}*/
 
 
 const deleteTask = (state, idx, elems) => {
@@ -287,20 +299,20 @@ const renderTask = (state, elems, name, totalTime, project, idx) => {
 
 
  	template.find(".js-btn5").click( () => {
- 		task.addTime(5);
+ 		task.addTime(state, elems, 5);
  	});
 
  	template.find(".js-btn15").click( () => {
-		task.addTime(15);
+		task.addTime(state, elems, 15);
 
  	});
  	template.find(".js-btn25").click( () => {
- 		task.addTime(25);
+ 		task.addTime(state, elems, 25);
 
  	});
 
  	template.find("#js-reset").click( () => {
- 		task.reset();
+ 		task.reset(state, elems);
  	});
 
  	template.find(`#customInput${idx}`).on("keyup", (e) => {
@@ -316,7 +328,7 @@ const renderTask = (state, elems, name, totalTime, project, idx) => {
  	})
 
  	template.find("#js-undo").click( () => {
- 		task.undo();
+ 		task.undo(state, elems);
  		renderTaskList(state, elems);
  	})
 
