@@ -7,6 +7,10 @@ body {
   margin-top: 10px;
 }
 
+.error {
+  margin-left: 5px;
+  color: red;
+}
 .timeMod {
 	width: 400px;
 	padding: 10px;
