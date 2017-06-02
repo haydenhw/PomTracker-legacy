@@ -175,7 +175,7 @@ const updateAllTasks = (state) => {
 	});
 }
 /*
-const setState = (state, elems) => {
+const setState = (state, elems, data) => {
 
 	const callback = data => {
 	  state.projects = data.projects.map(project => {
@@ -200,7 +200,11 @@ const setState = (state, elems) => {
 		renderProjectOptions(state, elems);
 		renderProjectList(state, elems);
 	}
-	$.get("/tasks", undefined, callback);
+}
+
+const getProjects = callback => {
+	$.getJSON("/projects", data => callback(data);
+  })
 }*/
 
 
